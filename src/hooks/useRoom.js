@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
-import _ from "lodash";
-import * as VideoExpress from "@vonage/video-express";
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import _ from 'lodash';
+import * as VideoExpress from '@vonage/video-express';
 
 export default function useRoom() {
   let roomRef = useRef(null);
@@ -54,7 +54,7 @@ export default function useRoom() {
   const addPublisherCameraEvents = () => {
     if (roomRef.current.camera) {
       roomRef.current.camera.on(
-        "audioLevelUpdated",
+        'audioLevelUpdated',
         _.throttle((event) => onAudioLevel(event), 250)
       );
     }
@@ -62,11 +62,11 @@ export default function useRoom() {
 
   const parseVideoFilter = (videoFilter) => {
     switch (videoFilter.filterName) {
-      case "blur":
-        return { type: "backgroundBlur", blurStrength: videoFilter.filterPayload };
-      case "backgroundImage":
-        // previewPublisher.setVideoFilter({ type: "backgroundReplacement", backgroundImgUrl: filterPayload });
-        return { type: "backgroundReplacement", backgroundImgUrl: videoFilter.filterPayload };
+      case 'blur':
+        return { type: 'backgroundBlur', blurStrength: videoFilter.filterPayload };
+      case 'backgroundImage':
+        // previewPublisher.setVideoFilter({ type: 'backgroundReplacement', backgroundImgUrl: filterPayload });
+        return { type: 'backgroundReplacement', backgroundImgUrl: videoFilter.filterPayload };
       default:
         // do nothing
         return {};
@@ -75,66 +75,74 @@ export default function useRoom() {
 
   const startRoomListeners = useCallback(() => {
     if (roomRef.current) {
-      roomRef.current.on("connected", () => {
-        console.log("Room: connected");
-      });
-      roomRef.current.on("disconnected", () => {
-        setNetworkStatus("disconnected");
-        console.log("Room: disconnected");
-      });
-      roomRef.current.camera.on("created", () => {
-        setCameraPublishing(true);
-        console.log("camera publishing now");
-      });
-      roomRef.current.on("activeSpeakerChanged", (participant) => {
-        console.log("Active speaker changed", participant);
+      roomRef.current.on('connected', () => {
+        console.log('Room: connected');
       });
 
-      roomRef.current.on("reconnected", () => {
-        setNetworkStatus("reconnected");
-        console.log("Room: reconnected");
+      roomRef.current.on('disconnected', () => {
+        setNetworkStatus('disconnected');
+        console.log('Room: disconnected');
       });
-      roomRef.current.on("reconnecting", () => {
-        setNetworkStatus("reconnecting");
-        console.log("Room: reconnecting");
+
+      roomRef.current.camera.on('created', () => {
+        setCameraPublishing(true);
+        console.log('camera publishing now');
       });
-      roomRef.current.on("participantJoined", (participant) => {
+
+      roomRef.current.on('activeSpeakerChanged', (participant) => {
+        console.log('Active speaker changed', participant);
+      });
+
+      roomRef.current.on('reconnected', () => {
+        setNetworkStatus('reconnected');
+        console.log('Room: reconnected');
+      });
+
+      roomRef.current.on('reconnecting', () => {
+        setNetworkStatus('reconnecting');
+        console.log('Room: reconnecting');
+      });
+
+      roomRef.current.on('participantJoined', (participant) => {
         console.log(participant);
         addParticipants({ participant: participant });
-        console.log("Room: participant joined: ", participant);
+        console.log('Room: participant joined: ', participant);
       });
-      roomRef.current.on("participantLeft", (participant, reason) => {
+
+      roomRef.current.on('participantLeft', (participant, reason) => {
         removeParticipants({ participant: participant });
-        console.log("Room: participant left", participant, reason);
+        console.log('Room: participant left', participant, reason);
       });
     }
   }, []);
 
   const createCall = useCallback(async ({ apikey, sessionId, token }, roomContainer, userName, videoFilter, publisherOptions) => {
     if (!apikey || !sessionId || !token) {
-      throw new Error("Check your credentials");
+      throw new Error('Check your credentials');
     }
 
     roomRef.current = new VideoExpress.Room({
       apiKey: apikey,
       sessionId: sessionId,
       token: token,
-      roomContainer: "roomContainer",
+      roomContainer: 'roomContainer',
       maxVideoParticipantsOnScreen: 25,
       participantName: userName,
       managedLayoutOptions: {
-        layoutMode: "grid",
-        screenPublisherContainer: "screenSharingContainer",
+        layoutMode: 'grid',
+        screenPublisherContainer: 'screenSharingContainer',
         speakerHighlightEnabled: true,
       },
     });
+
     startRoomListeners();
+
     if (videoFilter && videoFilter.filterName && videoFilter.filterPayload) {
       publisherOptionsRef.current = Object.assign({}, publisherOptions, {
         style: {
-          buttonDisplayMode: "off",
-          nameDisplayMode: "auto",
-          audioLevelDisplayMode: "off",
+          buttonDisplayMode: 'off',
+          nameDisplayMode: 'auto',
+          audioLevelDisplayMode: 'off',
         },
         name: userName,
         showControls: true,
@@ -143,16 +151,15 @@ export default function useRoom() {
     } else {
       publisherOptionsRef.current = Object.assign({}, publisherOptions, {
         style: {
-          buttonDisplayMode: "off",
-          nameDisplayMode: "auto",
-          audioLevelDisplayMode: "off",
+          buttonDisplayMode: 'off',
+          nameDisplayMode: 'auto',
+          audioLevelDisplayMode: 'off',
         },
         name: userName,
         showControls: true,
       });
     }
 
-    console.log("[useRoom] - finalPublisherOptions", publisherOptionsRef.current);
     roomRef.current
       .join({ publisherProperties: publisherOptionsRef.current })
       .then(() => {
