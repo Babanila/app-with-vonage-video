@@ -1,8 +1,6 @@
 import axios from 'axios';
-let API_URL = `${process.env.REACT_APP_API_URL_DEVELOPMENT}/archive`;
-if (process.env.NODE_ENV === 'production') {
-  API_URL = `${process.env.REACT_APP_API_URL_PRODUCTION}/archive`;
-}
+const API_URL = `${process.env.REACT_APP_API_URL}/archive`;
+
 const fetchRecordings = (sessionId) => {
   return axios.get(`${API_URL}/${sessionId}`);
 };
