@@ -42,6 +42,10 @@
   background-color: transparent !important;
 }
 
+.layoutContainerWrapper-0-0-13 {
+  display: none; /* To remove duplicate of publisher screen */
+}
+
 #roomContainer > .OT_publisher {
   bottom: 25px;
   right: 25px;

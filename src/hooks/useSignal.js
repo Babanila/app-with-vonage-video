@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import moment from 'moment';
 import { EMOJIS } from '../utils';
 
 export default function useSignal({ room }) {
-  const [listOfMessages, setListOfMessages] = React.useState([]);
+  const [listOfMessages, setListOfMessages] = useState([]);
 
-  const sendSignal = React.useCallback(
+  const sendSignal = useCallback(
     (data, type) => {
       if (room) {
         room.signal({ type: type, data: data }).catch((e) => e);
@@ -14,7 +14,7 @@ export default function useSignal({ room }) {
     [room]
   );
 
-  const signalListener = React.useCallback(({ data, isSentByMe, from }) => {
+  const signalListener = useCallback(({ data, isSentByMe, from }) => {
     const date = moment(new Date().getTime()).format('HH:mm');
     addMessageToList(data, isSentByMe, from, date);
   }, []);
@@ -23,10 +23,11 @@ export default function useSignal({ room }) {
     document.getElementById(element).removeChild(node);
   };
 
-  const emojiHandler = React.useCallback(({ data, isSentByMe, from }) => {
+  const emojiHandler = useCallback(({ data, isSentByMe, from }) => {
     const elementToInsertEmoji = isSentByMe
       ? 'MP_camera_publisher_default_controls'
       : from.camera.id;
+
     const node = document.createElement('div');
     node.appendChild(document.createTextNode(EMOJIS[data]));
     node.classList.add('emoji');
@@ -37,15 +38,16 @@ export default function useSignal({ room }) {
     });
   }, []);
 
-  const addMessageToList = React.useCallback((data, isSentByMe, from, date) => {
+  const addMessageToList = useCallback((data, isSentByMe, from, date) => {
     setListOfMessages((prev) => [...prev, { data, isSentByMe, from, date }]);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (room) {
       room.on('signal:text', signalListener);
       room.on('signal:emoji', emojiHandler);
     }
+
     return function cleanup() {
       if (room) {
         room.off('signal:text', signalListener);

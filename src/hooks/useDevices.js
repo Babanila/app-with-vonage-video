@@ -11,22 +11,28 @@ export default function useDevices() {
   const getDevices = useCallback(async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
       console.warn('enumerateDevices() not supported.');
+
       return;
     }
+
     try {
       const devices = await VideoExpress.getDevices();
       let audioOutputDevices = await VideoExpress.getAudioOutputDevices();
+
       audioOutputDevices = audioOutputDevices.map((audiooutput) =>
         audiooutput.deviceId === 'default'
           ? { ...audiooutput, label: 'System Default' }
           : audiooutput
       );
+
       const audioInputDevices = devices.filter(
         (d) => d.kind.toLowerCase() === 'audioinput'
       );
+
       const videoInputDevices = devices.filter(
         (d) => d.kind.toLowerCase() === 'videoinput'
       );
+
       setDeviceInfo({
         audioInputDevices,
         videoInputDevices,
