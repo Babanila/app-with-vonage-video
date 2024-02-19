@@ -1,30 +1,26 @@
-const OpenTok = require("opentok");
+const OpenTok = require('opentok');
 
 const apiKey = process.env.VIDEO_API_API_KEY;
 const apiSecret = process.env.VIDEO_API_API_SECRET;
 
 if (!apiKey || !apiSecret) {
   throw new Error(
-    "Missing config values for env params OT_API_KEY and OT_API_SECRET"
+    'Missing config values for env params OT_API_KEY and OT_API_SECRET'
   );
 }
 
 let sessionId;
-const opentok = new OpenTok(apiKey, apiSecret);
+const opentok = new OpenTok(apiKey, apiSecret, { timeout: 30000 });
 
 const createSessionandToken = () => {
   return new Promise((resolve, reject) => {
-    opentok.createSession({ mediaMode: "routed" }, function (error, session) {
+    opentok.createSession({ mediaMode: 'routed' }, function (error, session) {
       if (error) {
         reject(error);
       } else {
         sessionId = session.sessionId;
-        // const token = opentok.generateToken(sessionId);
-        const token = session.generateToken({
-          role: "moderator",
-          expireTime: new Date().getTime() / 1000 + 1 * 24 * 60 * 60, // in 1 day
-        });
-        console.log("Session ID: " + sessionId);
+        const token = opentok.generateToken(sessionId);
+
         resolve({ sessionId: sessionId, token: token });
       }
     });
@@ -35,7 +31,7 @@ const createArchive = (session) => {
   return new Promise((resolve, reject) => {
     opentok.startArchive(
       session,
-      { layout: { screenshareType: "horizontalPresentation" } },
+      { layout: { screenshareType: 'horizontalPresentation' } },
       function (error, archive) {
         if (error) {
           reject(error);
@@ -70,7 +66,6 @@ const initiateArchiving = async (sessionId) => {
 };
 
 const stopArchiving = async (archiveId) => {
-  console.log(archiveId);
   const response = await stopArchive(archiveId);
   return response;
 };
